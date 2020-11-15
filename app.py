@@ -21,3 +21,4 @@ def close_door():
 
 if __name__ == '__main__':
     app.run(host='localhost', port=7090)
+    GPIO.cleanup()
