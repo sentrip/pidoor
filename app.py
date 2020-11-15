@@ -1,8 +1,10 @@
+import signal
 import RPi.GPIO as GPIO
 from flask import Flask
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(23, GPIO.OUT)
+signal.signal(signal.SIGINT, lambda s, f: GPIO.cleanup())
 app = Flask(__name__)
 
 @app.route('/open', methods=['POST'])
@@ -21,4 +23,3 @@ def close_door():
 
 if __name__ == '__main__':
     app.run(host='localhost', port=7090)
-    GPIO.cleanup()
