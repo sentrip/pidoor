@@ -36,3 +36,22 @@
     transform: rotate(360deg);
   }
 }
+
+
+.OpenButton {
+  font-size: 64px;
+  width: 100%;
+  padding: 128px 16px;
+}
+
+.OpenButton:focus {
+  outline: none;
+}
+
+.Green {
+  background-color: lightgreen;
+}
+
+.Red {
+  background-color: tomato;
+}
