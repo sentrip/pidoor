@@ -21,7 +21,7 @@ if __name__ == '__main__':
         os.system('%s buildserver.py' % PYTHON_CMD)
 
     elif cmd == 'pi':
-        os.system('FLASK_ENV=development flask run --port 7090')
+        os.system('FLASK_ENV=development %s app.py' % PYTHON_CMD)
 
     elif cmd == 'build':
         os.system('wget --method POST -q -O /dev/null http://%s:%d/build' % (IP, PORT))
