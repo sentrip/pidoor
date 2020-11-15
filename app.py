@@ -1,8 +1,6 @@
 import RPi.GPIO as GPIO
 from flask import Flask
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(23, GPIO.OUT)
 app = Flask(__name__)
 
 @app.route('/open', methods=['POST'])
@@ -20,6 +18,8 @@ def close_door():
 
 
 if __name__ == '__main__':
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(23, GPIO.OUT)
     try:
         app.run(host='localhost', port=7090)
     finally:
