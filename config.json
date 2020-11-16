@@ -4,9 +4,5 @@
 
     "DOOR_OUTPUT_PIN": 23,
     "DOOR_MSG_KEY": "door_open",
-    "DOOR_OPEN_DURATION": 5.0,
-
-    "whitelist": [
-        ["zentrip", "0420"]
-    ]
+    "DOOR_OPEN_DURATION": 5.0
 }

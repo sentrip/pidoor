@@ -7,6 +7,12 @@ from aiohttp import web
 with open('config.json') as f:
     config = json.load(f)
 
+try:
+    with open('whitelist.json') as f:
+        whitelist = json.load(f)
+except FileNotFoundError:
+    whitelist = []
+
 USE_PI = False if 'dev' in sys.argv else True
 HOST = config['HOST'] if USE_PI else 'localhost'
 PORT = config['PORT']
@@ -56,7 +62,7 @@ async def set_global_door_state(state, room):
 
 
 def verify_user(username, password):
-    for name, pin in config['whitelist']:
+    for name, pin in whitelist:
         if username == name and password == pin:
             return True
     return False
@@ -84,16 +90,13 @@ async def index(request):
         return web.Response(text=f.read(), content_type='text/html')
 
 async def favicon(request):
-    with open('build/favicon.ico') as f:
-        return web.Response(text=f.read())
+    return web.FileResponse('build/favicon.ico')
 
 async def logo192(request):
-    with open('build/logo192.png') as f:
-        return web.Response(text=f.read())
+    return web.FileResponse('build/logo192.png')
 
 async def logo512(request):
-    with open('build/logo512.png') as f:
-        return web.Response(text=f.read())
+    return web.FileResponse('build/logo512.png')
 
 app.router.add_static('/static', 'build/static', follow_symlinks=True)
 app.router.add_get('/', index)
