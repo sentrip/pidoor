@@ -91,6 +91,9 @@ async def index(request):
     with open('build/index.html') as f:
         return web.Response(text=f.read(), content_type='text/html')
 
+async def manifest(request):
+    return web.FileResponse('build/manifest.json')
+
 async def favicon(request):
     return web.FileResponse('build/favicon.ico')
 
@@ -102,6 +105,7 @@ async def logo512(request):
 
 app.router.add_static('/static', 'build/static', follow_symlinks=True)
 app.router.add_get('/', index)
+app.router.add_get('/manifest.json', manifest)
 app.router.add_get('/favicon.ico', favicon)
 app.router.add_get('/logo192.png', logo192)
 app.router.add_get('/logo512.png', logo512)
