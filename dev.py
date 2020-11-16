@@ -19,7 +19,7 @@ if __name__ == '__main__':
         msg = sys.argv[2] if len(sys.argv) > 2 else "Update"
         os.system('git add .')
         os.system('git commit -m "%s"' % msg)
-        os.system('git push origin master')
+        os.system('git push')
 
     else:
         raise RuntimeError("Invalid args")

@@ -83,9 +83,23 @@ async def index(request):
     with open('build/index.html') as f:
         return web.Response(text=f.read(), content_type='text/html')
 
+async def favicon(request):
+    with open('build/favicon.ico') as f:
+        return web.Response(text=f.read())
+
+async def logo192(request):
+    with open('build/logo192.png') as f:
+        return web.Response(text=f.read())
+
+async def logo512(request):
+    with open('build/logo512.png') as f:
+        return web.Response(text=f.read())
 
 app.router.add_static('/static', 'build/static', follow_symlinks=True)
 app.router.add_get('/', index)
+app.router.add_get('/favicon.ico', favicon)
+app.router.add_get('/logo192.png', logo192)
+app.router.add_get('/logo512.png', logo512)
 
 
 if __name__ == '__main__':
