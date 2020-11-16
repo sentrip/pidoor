@@ -7,12 +7,6 @@ from aiohttp import web
 with open('config.json') as f:
     config = json.load(f)
 
-try:
-    with open('whitelist.json') as f:
-        whitelist = json.load(f)
-except FileNotFoundError:
-    whitelist = []
-
 USE_PI = False if 'dev' in sys.argv else True
 HOST = config['HOST'] if USE_PI else 'localhost'
 PORT = config['PORT']
@@ -62,9 +56,17 @@ async def set_global_door_state(state, room):
 
 
 def verify_user(username, password):
+    # Load whitelist every time to allow editing users while server is running
+    try:
+        with open('whitelist.json') as f:
+            whitelist = json.load(f)
+    except:
+        whitelist = []
+
     for name, pin in whitelist:
         if username == name and password == pin:
             return True
+
     return False
 
 
