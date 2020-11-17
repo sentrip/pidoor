@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import io from "socket.io-client"
 import { disableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock';
-import { bake_cookie, read_cookie } from 'sfcookies';
 
 import './App.css'
 import StatusIcon from './StatusIcon'
@@ -18,6 +17,16 @@ function openDoor() { socket.emit(DOOR_MSG, {username: username, password: passw
 
 function closeDoor() { socket.emit(DOOR_MSG, {state: false}) }
 
+function bake_cookie(name, value) {
+  var cookie = [name, '=', JSON.stringify(value), '; domain_.', window.location.host.toString(), '; path=/; expires=Tue, 01-Jan-2030 00:00:01 GMT;'].join('');
+  document.cookie = cookie;
+}
+
+function read_cookie(name) {
+  var result = document.cookie.match(new RegExp(name + '=([^;]+)'));
+  result = result != null ? JSON.parse(result[1]) : [];
+  return result;
+}
 
 function App() {
   username = read_cookie('username') || ''
