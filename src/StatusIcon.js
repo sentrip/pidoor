@@ -3,7 +3,9 @@ import circleRed from './circleRed.svg';
 import circleGreen from './circleGreen.svg';
 
 
-function StatusIndicator({connected, handleClickOpen = e => {}}) {
+
+export default function StatusIcon({connected}) {
+  const isConnected = React.useState(connected)
   const icon_style = { 
     position:"absolute",
     top: "15px",
@@ -11,27 +13,26 @@ function StatusIndicator({connected, handleClickOpen = e => {}}) {
   }
 
   return (
-    <div onClick={handleClickOpen} style={icon_style}>
+    <div style={icon_style}>
     
       <span style={{color:"white"}} >Status: </span>
 
       <img 
-        src={connected ? circleGreen : circleRed} 
+        src={circleGreen} 
         alt=""
         width="12" 
         height="12" 
+        style={{display: connected ? 'inline-block' : 'none'}}
+      />
+
+      <img 
+        src={circleRed} 
+        alt=""
+        width="12" 
+        height="12"
+        style={{display: connected ? 'none' : 'inline-block'}}
       />
     
     </div>
   )
-}
-
-
-export default function StatusIcon({connected}) {
-
-  return (
-    <div>
-      <StatusIndicator connected={connected}/>
-    </div>
-  ) 
 }

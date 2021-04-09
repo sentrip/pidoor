@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react'
-import io from "socket.io-client"
 import { disableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock';
 
 import './App.css'
@@ -10,12 +9,53 @@ let username = "", password = ""
 const DOOR_MSG = 'door_open'
 const DOOR_CLICK_TIMEOUT_MS = 500
 
+let checking = false
 
-const socket = io('/')
+function openDoor(handler) { doDoorPost({'username': username, "password": password, "state": true}, handler) }
 
-function openDoor() { socket.emit(DOOR_MSG, {username: username, password: password, state: true}) }
+function closeDoor(handler) { doDoorPost({'username': username, "password": password, "state": false}, handler) }
 
-function closeDoor() { socket.emit(DOOR_MSG, {state: false}) }
+
+function doDoorPost(data, handler) {
+
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', '/open');
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.onload = () => {
+    handler(xhr.status === 200 ? data.state : !data.state)
+  }
+  xhr.onerror = () => {
+    handler(!data.state)
+  }
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4 && xhr.status == 0) {
+      handler(!data.state)
+    }
+  };
+  xhr.send(JSON.stringify(data));
+}
+
+function check_connected(setConnected) {
+  setTimeout(() => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', '/ping');
+      xhr.onload = () => {
+        setConnected(xhr.status === 200)
+      }
+      xhr.onerror = () => {
+        setConnected(false)
+      }
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4 && xhr.status == 0) {
+          setConnected(false)
+        }
+      }
+      xhr.send()
+      check_connected(setConnected)
+  }, 1000);
+}
+
+
 
 function bake_cookie(name, value) {
   var cookie = [name, '=', JSON.stringify(value), '; domain_.', window.location.host.toString(), '; path=/; expires=Tue, 01-Jan-2030 00:00:01 GMT;'].join('');
@@ -28,12 +68,17 @@ function read_cookie(name) {
   return result;
 }
 
+
+
 function App() {
+  
+  console.log("render")
+
   username = read_cookie('username') || ''
   password = read_cookie('password') || ''
   
   const [open, setOpen] = React.useState(false)
-  const [connected, setConnected] = React.useState(socket.connected)
+  const [connected, setConnected] = React.useState(false)
   const [recentlyClicked, setRecentlyClicked] = React.useState(false)
   
   if (recentlyClicked) {
@@ -45,16 +90,15 @@ function App() {
     return () => clearAllBodyScrollLocks()
   })
 
-  socket.off('connect')
-  socket.on('connect', () => setConnected(true))
-  socket.off('disconnect')
-  socket.on('disconnect', () => setConnected(false))
-  socket.off(DOOR_MSG)
-  socket.on(DOOR_MSG, (data) => setOpen(data.state))
-  
+  if (!checking) {
+    checking = true
+    check_connected(setConnected)
+  }
+
   return (
     <div className="App" id="MainApp">
-      <StatusIcon connected={connected}/>
+      <StatusIcon connected={connected} />
+
       <header className="App-header">
         <Input id="Username" label="Username" value={username} predicted="" locked={false} 
           onChange={e => { username = e.target.value; bake_cookie('username', username); }}/>
@@ -64,12 +108,16 @@ function App() {
             type: "number", inputMode: 'numeric', pattern: "[0-9]*"
           }
         }/>
-        <button className={`OpenButton ${open ? "Red" : "Green"}`} 
-          disabled={recentlyClicked}
-          onClick={e => { open ? closeDoor() : openDoor(); setRecentlyClicked(true); }}
-          >
-          {open ? 'Close' : 'Open'}
-        </button>
+
+      <button className={`OpenButton ${open ? "Red" : "Green"}`} 
+        disabled={recentlyClicked}
+        onClick={e => 
+          { open ? closeDoor(setOpen) : openDoor(setOpen); setRecentlyClicked(true); }
+        }
+        >
+        {open ? 'Close' : 'Open'}
+      </button>
+
       </header>
     </div>
   );

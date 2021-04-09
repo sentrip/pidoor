@@ -1,7 +1,7 @@
 import asyncio
 import json
 import sys
-import socketio
+# import socketio
 from aiohttp import web
 
 with open('config.json') as f:
@@ -15,9 +15,22 @@ OUTPUT_PIN = config['DOOR_OUTPUT_PIN']
 DOOR_OPEN_DURATION = config['DOOR_OPEN_DURATION']
 
 is_open = False
-sio = socketio.AsyncServer()
 app = web.Application()
-sio.attach(app)
+# sio = socketio.AsyncServer()
+# sio.attach(app)
+
+
+# @sio.event
+# def connect(sid, environ):
+#     global is_open
+#     asyncio.ensure_future(sio.emit(DOOR_MSG, data={"state": is_open}, room=sid))
+
+
+# @sio.event
+# async def door_open(sid, data):
+#     return await open_door(sid, data)
+    
+
 
 def setup_door():
     if USE_PI:
@@ -46,7 +59,7 @@ async def set_global_door_state(state, room):
     is_open = state
     set_door_state(state)
     
-    await sio.emit(DOOR_MSG, data={"state": state}, room=room)
+    # await sio.emit(DOOR_MSG, data={"state": state}, room=room)
     
     # TODO: Better decision making for spamming the button
     if is_open:
@@ -64,20 +77,13 @@ def verify_user(username, password):
         whitelist = []
 
     for name, pin in whitelist:
-        if username == name and password == pin:
+        if username.lower() == name.lower() and password == pin:
             return True
 
     return False
 
 
-@sio.event
-def connect(sid, environ):
-    global is_open
-    asyncio.ensure_future(sio.emit(DOOR_MSG, data={"state": is_open}, room=sid))
-
-
-@sio.event
-async def door_open(sid, data):
+async def open_door(sid, data):
     global is_open
     requested_open = data['state']
 
@@ -85,8 +91,22 @@ async def door_open(sid, data):
         await set_global_door_state(True, sid)
     elif is_open and not requested_open:
         await set_global_door_state(False, sid)
-    
-    
+
+
+
+
+async def ping(request):
+    return web.Response(text="", content_type='text/html')
+
+async def door_open_http(request):
+    js = await request.json()
+    asyncio.ensure_future(open_door('', {
+        'username': js.get('username', ''),
+        'password': js.get('password', ''),
+        'state': bool(js.get('state', False))
+    }))
+    return web.Response(text="")
+
 async def index(request):
     with open('build/index.html') as f:
         return web.Response(text=f.read(), content_type='text/html')
@@ -105,6 +125,8 @@ async def logo512(request):
 
 app.router.add_static('/static', 'build/static', follow_symlinks=True)
 app.router.add_get('/', index)
+app.router.add_post('/open', door_open_http)
+app.router.add_get('/ping', ping)
 app.router.add_get('/manifest.json', manifest)
 app.router.add_get('/favicon.ico', favicon)
 app.router.add_get('/logo192.png', logo192)

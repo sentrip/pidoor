@@ -32,12 +32,13 @@ export default class Input extends React.Component {
           id={this.props.id}
           value={value}
           placeholder={label}
+          aria-labelledby={this.props.id + "_label"}
           onChange={e => { this.setState({value: e.target.value, error: ""}); if(this.props.onChange) { this.props.onChange(e) } }}
           onFocus={() => !locked && this.setState({ active: true })}
           onBlur={() => !locked && this.setState({ active: false })}
           {...p}
         />
-        <label htmlFor={1} className={error && "error"}>
+        <label htmlFor={1} className={error && "error"} id={this.props.id + "_label"}>
           {error || label}
         </label>
       </div>
