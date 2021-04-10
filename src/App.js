@@ -11,7 +11,7 @@ const DOOR_CLICK_TIMEOUT_MS = 500
 
 let checking = false
 
-function openDoor(handler) { doDoorPost({'username': username, "password": password, "state": true}, handler) }
+function openDoor(handler) { doDoorPost({'username': username, "password": password, "state": true}, handler); setTimeout(() => closeDoor(handler), 5000) }
 
 function closeDoor(handler) { doDoorPost({'username': username, "password": password, "state": false}, handler) }
 
@@ -71,8 +71,6 @@ function read_cookie(name) {
 
 
 function App() {
-  
-  console.log("render")
 
   username = read_cookie('username') || ''
   password = read_cookie('password') || ''
