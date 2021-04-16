@@ -88,14 +88,14 @@ function App() {
     return () => clearAllBodyScrollLocks()
   })
 
-  // if (!checking) {
-  //   checking = true
-  //   check_connected(setConnected)
-  // }
+  if (!checking) {
+    checking = true
+    check_connected(setConnected)
+  }
 
   return (
     <div className="App" id="MainApp">
-      {/* <StatusIcon connected={connected} /> */}
+      <StatusIcon connected={connected} />
 
       <header className="App-header">
         <Input id="Username" label="Username" value={username} predicted="" locked={false} 

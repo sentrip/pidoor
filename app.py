@@ -69,6 +69,9 @@ async def set_global_door_state(state, room):
 
 
 def verify_user(username, password):
+    if not username or not password or not isinstance(username, str) or not isinstance(password, str):
+        return False
+
     # Load whitelist every time to allow editing users while server is running
     try:
         with open('whitelist.json') as f:
